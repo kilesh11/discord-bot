@@ -25,12 +25,28 @@ export class ExtendedClient extends Client {
         return (await import(filePath))?.default;
     };
 
-    registerCommandsToGuild = (
+    registerCommandsToGuild = async (
         commands: ApplicationCommandDataResolvable[],
         guildId: string
-    ): void => {
+    ): Promise<void> => {
         if (guildId) {
-            this.guilds.cache.get(guildId)?.commands.set(commands);
+            this.guilds.cache
+                .get(guildId)
+                ?.commands.cache.find((c) => c.name === "submit")
+                ?.delete();
+            this.guilds.cache
+                .get(guildId)
+                ?.commands.cache.find((c) => c.name === "update")
+                ?.delete();
+            this.guilds.cache
+                .get(guildId)
+                ?.commands.cache.find((c) => c.name === "check")
+                ?.delete();
+
+            const collection = await this.guilds.cache.get(guildId)?.commands.set([]);
+            console.log({ collection });
+            const newCollection = await this.guilds.cache.get(guildId)?.commands.set(commands);
+            console.log({ newCollection });
             console.log(`Registering commands to ${guildId}`);
         } else {
             this.application?.commands.set(commands);
@@ -70,8 +86,8 @@ export class ExtendedClient extends Client {
     registerModules = async (): Promise<void> => {
         // Commands
         const slashCommands = await this.registerCommands();
-        this.on("ready", () => {
-            this.registerCommandsToGuild(slashCommands, process.env.guildId);
+        this.on("ready", async () => {
+            await this.registerCommandsToGuild(slashCommands, process.env.guildId);
         });
 
         // Messages
