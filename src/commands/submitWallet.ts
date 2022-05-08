@@ -1,5 +1,6 @@
 import { Command } from "../classes/Command";
 import { utils } from "ethers";
+import { PrismaUserRepository } from "../repository/user.repository";
 
 export default new Command({
     name: "submit",
@@ -29,20 +30,19 @@ export default new Command({
             interaction.followUp("invalid wallet format");
             return;
         }
-        const upsertUser = await prisma.users.upsert({
-            where: { id },
-            update: {},
-            create: {
-                id,
-                username,
-                discriminator,
-                wallet: args.data[0].value?.toString() ?? "",
-                roles: upsertRoles,
-                isWL: true,
-                highestRole
-            }
+        const userRepository = new PrismaUserRepository(prisma);
+        const upsertUser = await userRepository.upsert({
+            id,
+            username,
+            discriminator,
+            wallet: args.data[0].value?.toString() ?? "",
+            roles: upsertRoles,
+            isWL: true,
+            highestRole,
+            createdAt: null,
+            updatedAt: null
         });
-        if (upsertUser.wallet !== wallet) {
+        if (upsertUser?.wallet !== wallet) {
             interaction.followUp(`You have submitted a wallet, please use update command instead`);
             return;
         }

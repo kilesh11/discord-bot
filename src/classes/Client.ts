@@ -32,19 +32,6 @@ export class ExtendedClient extends Client {
         guildId: string
     ): Promise<void> => {
         if (guildId) {
-            this.guilds.cache
-                .get(guildId)
-                ?.commands.cache.find((c) => c.name === "submit")
-                ?.delete();
-            this.guilds.cache
-                .get(guildId)
-                ?.commands.cache.find((c) => c.name === "update")
-                ?.delete();
-            this.guilds.cache
-                .get(guildId)
-                ?.commands.cache.find((c) => c.name === "check")
-                ?.delete();
-
             await this.guilds.cache.get(guildId)?.commands.set([]);
             await this.guilds.cache.get(guildId)?.commands.set(commands);
             console.log(`Registering commands to ${guildId}`);

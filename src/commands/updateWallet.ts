@@ -1,5 +1,6 @@
 import { Command } from "../classes/Command";
 import { utils } from "ethers";
+import { PrismaUserRepository } from "../repository/user.repository";
 
 export default new Command({
     name: "update",
@@ -29,24 +30,24 @@ export default new Command({
             interaction.followUp("invalid wallet format");
             return;
         }
+        const userRepository = new PrismaUserRepository(prisma);
+
         try {
-            const userCount = await prisma.users.count({
-                where: { id }
-            });
+            const userCount = await userRepository.exist(id);
             if (userCount === 0) {
                 interaction.followUp(`no wallet to be updated, please submit your wallet first`);
                 return;
             }
-            const upsertUser = await prisma.users.update({
-                where: { id },
-                data: {
-                    username,
-                    discriminator,
-                    wallet: args.data[0].value?.toString() ?? "",
-                    roles: upsertRoles,
-                    isWL: true,
-                    highestRole
-                }
+            const upsertUser = await userRepository.update({
+                id,
+                username,
+                discriminator,
+                wallet: args.data[0].value?.toString() ?? "",
+                roles: upsertRoles,
+                isWL: true,
+                highestRole,
+                createdAt: null,
+                updatedAt: null
             });
             console.log({ upsertUser });
             interaction.followUp(`your updateed WL wallet is ${args.data[0].value}`);

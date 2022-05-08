@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
+model User {
   id            String   @id @map("_id")
   discriminator String
   isWL          Boolean
@@ -15,6 +15,6 @@ model users {
   highestRole   String
   username      String
   wallet        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
 }
