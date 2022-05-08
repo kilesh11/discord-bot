@@ -3,18 +3,18 @@ import { Command } from "../classes/Command";
 export default new Command({
     name: "check",
     description: "check your submitted WL wallet",
-    run: async ({ interaction }) => {
+    run: async ({ interaction, prisma }) => {
         const {
             member: {
-                roles,
-                user: { id, username, discriminator }
+                user: { id }
             }
         } = interaction;
         console.log({ id });
-        console.log({ username });
-        console.log({ discriminator });
-        console.log({ roles: roles.highest.name });
-
-        interaction.followUp(`your submitted WL wallet is 12345`);
+        const user = await prisma.users.findUnique({ where: { id } });
+        if (!user) {
+            interaction.followUp(`no wallet is submitted, please submit your wallet first`);
+            return;
+        }
+        interaction.followUp(`your submitted WL wallet is ${user?.wallet}`);
     }
 });

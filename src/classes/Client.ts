@@ -5,12 +5,14 @@ import glob from "glob";
 import { promisify } from "util";
 
 import { Event } from "./Event";
+import { PrismaClient } from "@prisma/client";
 
 const globPromise = promisify(glob);
 
 export class ExtendedClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
     messages: Collection<string, MessageType> = new Collection();
+    prisma: PrismaClient = new PrismaClient();
 
     constructor() {
         super({ intents: 32767 });
@@ -43,13 +45,11 @@ export class ExtendedClient extends Client {
                 ?.commands.cache.find((c) => c.name === "check")
                 ?.delete();
 
-            const collection = await this.guilds.cache.get(guildId)?.commands.set([]);
-            console.log({ collection });
-            const newCollection = await this.guilds.cache.get(guildId)?.commands.set(commands);
-            console.log({ newCollection });
+            await this.guilds.cache.get(guildId)?.commands.set([]);
+            await this.guilds.cache.get(guildId)?.commands.set(commands);
             console.log(`Registering commands to ${guildId}`);
         } else {
-            this.application?.commands.set(commands);
+            await this.application?.commands.set(commands);
             console.log("Registering global commands");
         }
     };

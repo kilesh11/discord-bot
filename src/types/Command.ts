@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import {
     ChatInputApplicationCommandData,
     CommandInteraction,
@@ -12,6 +13,7 @@ export interface ExtendedInteraction extends CommandInteraction {
 }
 
 interface RunOptions {
+    prisma: PrismaClient;
     client: ExtendedClient;
     interaction: ExtendedInteraction;
     args: CommandInteractionOptionResolver;

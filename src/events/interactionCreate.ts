@@ -13,6 +13,7 @@ export default new Event("interactionCreate", async (interaction) => {
         }
 
         command.run({
+            prisma: client.prisma,
             args: interaction.options as CommandInteractionOptionResolver,
             client,
             interaction: interaction as ExtendedInteraction
